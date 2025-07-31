@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bukan Fans</title>
+    <link rel="icon" href="images/robot.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        .file-drop-zone {
+            border: 2px dashed #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .file-drop-zone.dragover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-active {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .tab-inactive {
+            background-color: #f8fafc;
+            color: #64748b;
+        }
+
+        /* Custom scrollbar for table */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: #93c5fd;
+            border-radius: 4px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+            background: #60a5fa;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-slate-100 min-h-screen font-['Poppins']">
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b-4 border-blue-600">
+        <div class="container mx-auto px-4 py-4 md:py-6">
+            <div class="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between">
+                <!-- Logo and Title Section -->
+                <div class="flex items-center justify-center md:justify-start">
+                    <div
+                        class="bg-blue-600 text-white p-2 md:p-3 rounded-full mr-3 md:mr-4 flex items-center justify-center">
+                        <span class="text-xl md:text-2xl">🤖</span>
+                    </div>
+                    <div class="text-center md:text-left">
+                        <h1 class="text-xl md:text-2xl font-bold text-gray-800">BUKAN FANS</h1>
+                        <p class="text-gray-600 text-xs md:text-sm">Analisis Instagram Profesional</p>
+                    </div>
+                </div>
+
+                <!-- Instagram Link Section -->
+                <div class="flex justify-center md:justify-end">
+                    <a href="https://instagram.com/febryvallentihanto_" target="_blank"
+                        class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors bg-gray-50 hover:bg-blue-50 px-4 py-2 rounded-lg border border-gray-200 hover:border-blue-300">
+                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                        </svg>
+                        <span class="text-xs md:text-sm font-medium">febryvallentihanto_</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Main Title -->
+        <div class="text-center mb-8">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Bukan Fans</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Merupakan tools yang membantu kamu melihat siapa
+                saja yang benar-benar mengikuti akunmu. Dengan fitur untuk menampilkan jumlah pengikut, total akun yang
+                kamu ikuti, dan siapa yang tidak mengikuti balik, kamu bisa lebih mudah mengelola relasi di media
+                sosial. Praktis, cepat, dan tanpa ribet.
+            </p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="mb-8 bg-white rounded-xl shadow-lg p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2 md:mb-0">📋 Cara Mendapatkan Data Instagram</h3>
+                <a href="https://youtube.com/watch?v=tutorial" target="_blank"
+                    class="flex items-center space-x-2 text-red-600 hover:text-red-700 transition-colors bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg border border-red-200 hover:border-red-300 w-fit">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                    </svg>
+                    <span class="text-sm font-medium">Tutorial Video</span>
+                </a>
+            </div>
+            <div class="space-y-6">
+                <!-- Langkah 1 -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="text-base font-semibold text-blue-800 mb-3 flex items-center">
+                        📱 Langkah 1: Request Data Instagram
+                    </h4>
+                    <ol class="space-y-2 text-gray-700 text-sm">
+                        <li class="flex items-start">
+                            <span
+                                class="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</span>
+                            Buka Instagram → Pengaturan → Informasi dan Izin Anda → Unduh Informasi Anda
+                        </li>
+                        <li class="flex items-start">
+                            <span
+                                class="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</span>
+                            Pilih "Mengunduh atau Mentransfer Informasi" → Akun Instagram → Beberapa Informasi Anda
+                        </li>
+                        <li class="flex items-start">
+                            <span
+                                class="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</span>
+                            Pilih "Pengikut dan Mengikuti" → Unduh ke Perangkat → Beberapa Informasi Anda
+                        </li>
+                        <li class="flex items-start">
+                            <span
+                                class="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">4</span>
+                            Ganti "Retang Tanggal= Sepanjang Waktu" → "Format= Html atau Json" → Buat File
+                        <li class="flex items-start">
+                            <span
+                                class="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">5</span>
+                            Tunggu email dari Instagram
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- Langkah 2 -->
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="text-base font-semibold text-green-800 mb-3 flex items-center">
+                        📁 Langkah 2: Extract File
+                    </h4>
+                    <ol class="space-y-2 text-gray-700 text-sm">
+                        <li class="flex items-start">
+                            <span
+                                class="bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</span>
+                            Download file ZIP dari Instagram
+                        </li>
+                        <li class="flex items-start">
+                            <span
+                                class="bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</span>
+                            Extract dan cari folder "connections"
+                        </li>
+                        <li class="flex items-start">
+                            <span
+                                class="bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</span>
+                            Upload file "followers_1.json" dan "following.json" atau dengan format Html
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- Catatan -->
+                <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                    <h4 class="text-base font-semibold text-yellow-800 mb-2 flex items-center">
+                        🔒 Catatan
+                    </h4>
+                    <p class="text-gray-700 text-sm">
+                        Data Anda diproses secara lokal di browser dan tidak disimpan di server manapun.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <!-- Followers Upload -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">📥 Upload Followers</h3>
+                <div class="file-drop-zone rounded-lg p-8 text-center cursor-pointer" id="followersDropZone">
+                    <div class="text-gray-500">
+                        <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                            </path>
+                        </svg>
+                        <p class="text-sm">Klik atau drag & drop file JSON/HTML</p>
+                        <p class="text-xs text-gray-400 mt-2">File data followers dari Instagram</p>
+                    </div>
+                </div>
+                <input type="file" id="followersFile" class="hidden" accept=".json,.html,.htm">
+                <div id="followersStatus" class="mt-3 text-sm"></div>
+            </div>
+
+            <!-- Following Upload -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">📤 Upload Following</h3>
+                <div class="file-drop-zone rounded-lg p-8 text-center cursor-pointer" id="followingDropZone">
+                    <div class="text-gray-500">
+                        <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                            </path>
+                        </svg>
+                        <p class="text-sm">Klik atau drag & drop file JSON/HTML</p>
+                        <p class="text-xs text-gray-400 mt-2">File data following dari Instagram</p>
+                    </div>
+                </div>
+                <input type="file" id="followingFile" class="hidden" accept=".json,.html,.htm">
+                <div id="followingStatus" class="mt-3 text-sm"></div>
+            </div>
+        </div>
+
+        <!-- Process Button -->
+        <div class="text-center mb-8">
+            <button id="processBtn"
+                class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span id="processText">Search</span>
+                <span id="loadingText" class="hidden">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    Menganalisis...
+                </span>
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden fade-in">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">📊 Hasil Analisis</h3>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="text" id="searchInput" placeholder="🔍 Cari username..."
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <button id="downloadBtn"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            💾 Unduh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-blue-50 p-4 rounded-lg text-center cursor-pointer hover:bg-blue-100 transition-colors duration-200 border-2 border-transparent hover:border-blue-300"
+                        onclick="switchTab('followers')" id="followersCard">
+                        <div class="text-2xl font-bold text-blue-600" id="followersCount">0</div>
+                        <div class="text-sm text-blue-800">Total Pengikut</div>
+                        <div class="text-xs text-blue-600 mt-1 opacity-70">👆 Klik untuk lihat</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg text-center cursor-pointer hover:bg-slate-100 transition-colors duration-200 border-2 border-transparent hover:border-slate-300"
+                        onclick="switchTab('following')" id="followingCard">
+                        <div class="text-2xl font-bold text-slate-600" id="followingCount">0</div>
+                        <div class="text-sm text-slate-800">Total Mengikuti</div>
+                        <div class="text-xs text-slate-600 mt-1 opacity-70">👆 Klik untuk lihat</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg text-center cursor-pointer hover:bg-red-100 transition-colors duration-200 border-2 border-transparent hover:border-red-300"
+                        onclick="switchTab('unfollowers')" id="unfollowersCard">
+                        <div class="text-2xl font-bold text-red-600" id="unfollowersCount">0</div>
+                        <div class="text-sm text-red-800">Tidak Mengikuti</div>
+                        <div class="text-xs text-red-600 mt-1 opacity-70">👆 Klik untuk lihat</div>
+                    </div>
+                </div>
+
+
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Unfollowers Tab -->
+                    <div id="unfollowersTab" class="tab-pane">
+                        <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-gray-100">
+                            <table class="w-full border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr class="bg-blue-600">
+                                        <th
+                                            class="border border-blue-500 px-4 py-3 text-center font-semibold text-white">
+                                            No</th>
+                                        <th
+                                            class="border border-blue-500 px-4 py-3 text-center font-semibold text-white">
+                                            Nama Pengguna</th>
+                                        <th
+                                            class="border border-blue-500 px-4 py-3 text-center font-semibold text-white">
+                                            Profil Instagram</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="unfollowersTable">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="noUnfollowers" class="hidden text-center py-8">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h4 class="text-xl font-semibold text-gray-800 mb-2">Selamat!</h4>
+                            <p class="text-gray-600">Tidak ada yang berhenti mengikuti ditemukan. Semua yang Anda ikuti
+                                juga mengikuti Anda kembali!</p>
+                        </div>
+                    </div>
+
+                    <!-- Followers Tab -->
+                    <div id="followersTab" class="tab-pane hidden">
+                        <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-gray-100">
+                            <table class="w-full border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr class="bg-blue-600">
+                                        <th
+                                            class="border border-blue-500 px-4 py-3 text-center font-semibold text-white">
+                                            No</th>
+                                        <th
+                                            class="border border-blue-500 px-4 py-3 text-center font-semibold text-white">
+                                            Nama Pengguna</th>
+                                        <th
+                                            class="border border-blue-500 px-4 py-3 text-center font-semibold text-white">
+                                            Profil Instagram</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="followersTable">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Following Tab -->
+                    <div id="followingTab" class="tab-pane hidden">
+                        <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-gray-100">
+                            <table class="w-full border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr class="bg-blue-600">
+                                        <th
+                                            class="border border-blue-500 px-4 py-3 text-center font-semibold text-white">
+                                            No</th>
+                                        <th
+                                            class="border border-blue-500 px-4 py-3 text-center font-semibold text-white">
+                                            Nama Pengguna</th>
+                                        <th
+                                            class="border border-blue-500 px-4 py-3 text-center font-semibold text-white">
+                                            Profil Instagram</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="followingTable">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid md:grid-cols-4 gap-8">
+                <!-- About Section -->
+                <div class="md:col-span-2">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-600 text-white p-2 rounded-full mr-3 flex items-center justify-center">
+                            <span class="text-lg">🤖</span>
+                        </div>
+                        <h3 class="text-xl font-bold">Bukan Fans</h3>
+                    </div>
+                    <p class="text-gray-300 mb-4 leading-relaxed">
+                        Tool analisis Instagram terpercaya untuk membantu Anda memahami data followers dan following.
+                        Temukan siapa yang berhenti mengikuti Anda dengan mudah dan aman.
+                    </p>
+                    <div class="flex space-x-4">
+                        <span class="flex items-center text-sm text-gray-400">
+                            <svg class="w-4 h-4 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Data Aman
+                        </span>
+                        <span class="flex items-center text-sm text-gray-400">
+                            <svg class="w-4 h-4 mr-2 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            100% Gratis
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-blue-400">Fitur Utama</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Deteksi Unfollowers
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Analisis Followers
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Export Data CSV
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Pencarian Cepat
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-blue-400">Dukungan</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Format JSON & HTML
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Panduan Lengkap
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Responsif Mobile
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            Privasi Terjamin
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Footer -->
+            <div class="border-t border-gray-700 mt-8 pt-8">
+                <div class="text-center text-gray-400 text-sm">
+                    <p>&copy; 2025 Febry Vallentihanto All Right Reserved</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let followersData = [];
+        let followingData = [];
+
+        // File upload handlers
+        function setupFileUpload(dropZoneId, fileInputId, statusId, dataArray) {
+            const dropZone = document.getElementById(dropZoneId);
+            const fileInput = document.getElementById(fileInputId);
+            const status = document.getElementById(statusId);
+
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0], status, dataArray);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0], status, dataArray);
+                }
+            });
+        }
+
+        function handleFile(file, statusElement, dataArray) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                try {
+                    const content = e.target.result;
+                    let usernames = [];
+
+                    if (file.name.endsWith('.json')) {
+                        usernames = parseJSON(content);
+                    } else if (file.name.endsWith('.html') || file.name.endsWith('.htm')) {
+                        usernames = parseHTML(content);
+                    }
+
+                    if (usernames.length > 0) {
+                        dataArray.length = 0;
+                        dataArray.push(...usernames);
+                        statusElement.innerHTML = `<span class="text-green-600">✅ ${usernames.length} akun berhasil dimuat</span>`;
+                    } else {
+                        statusElement.innerHTML = `<span class="text-red-600">❌ Tidak ada data yang ditemukan</span>`;
+                    }
+                } catch (error) {
+                    statusElement.innerHTML = `<span class="text-red-600">❌ Kesalahan: ${error.message}</span>`;
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        function parseJSON(content) {
+            const data = JSON.parse(content);
+            let usernames = [];
+
+            // Try different JSON structures
+            if (Array.isArray(data)) {
+                usernames = data.map(item => {
+                    if (typeof item === 'string') return item;
+                    if (item.username) return item.username;
+                    if (item.string_list_data && item.string_list_data[0]) {
+                        return item.string_list_data[0].value;
+                    }
+                    return null;
+                }).filter(Boolean);
+            } else if (data.relationships_following || data.relationships_followers) {
+                const relationships = data.relationships_following || data.relationships_followers;
+                usernames = relationships.map(item => {
+                    if (item.string_list_data && item.string_list_data[0]) {
+                        return item.string_list_data[0].value;
+                    }
+                    return null;
+                }).filter(Boolean);
+            }
+
+            return [...new Set(usernames)]; // Remove duplicates
+        }
+
+        function parseHTML(content) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(content, 'text/html');
+            let usernames = [];
+
+            // Try to find usernames in various HTML structures
+            const links = doc.querySelectorAll('a[href*="instagram.com"]');
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                const match = href.match(/instagram\.com\/([^\/\?]+)/);
+                if (match && match[1]) {
+                    usernames.push(match[1]);
+                }
+            });
+
+            // Also try to find @usernames in text
+            const textContent = doc.body.textContent || '';
+            const usernameMatches = textContent.match(/@([a-zA-Z0-9._]+)/g);
+            if (usernameMatches) {
+                usernameMatches.forEach(match => {
+                    usernames.push(match.substring(1)); // Remove @
+                });
+            }
+
+            return [...new Set(usernames)]; // Remove duplicates
+        }
+
+        function processUnfollowers() {
+            if (followersData.length === 0 || followingData.length === 0) {
+                alert('Silakan unggah kedua file terlebih dahulu!');
+                return;
+            }
+
+            // Show loading state
+            const processBtn = document.getElementById('processBtn');
+            const processText = document.getElementById('processText');
+            const loadingText = document.getElementById('loadingText');
+
+            processBtn.disabled = true;
+            processText.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+
+            // Simulate processing time for better UX
+            setTimeout(() => {
+                const followersSet = new Set(followersData.map(u => u.toLowerCase()));
+                const unfollowers = followingData.filter(username =>
+                    !followersSet.has(username.toLowerCase())
+                );
+
+                displayResults(unfollowers);
+
+                // Hide loading state
+                processBtn.disabled = false;
+                processText.classList.remove('hidden');
+                loadingText.classList.add('hidden');
+            }, 1500); // 1.5 second delay for loading effect
+        }
+
+        let currentTab = 'unfollowers';
+        let unfollowersData = [];
+
+        function displayResults(unfollowers) {
+            unfollowersData = unfollowers;
+
+            document.getElementById('resultsSection').classList.remove('hidden');
+            document.getElementById('followersCount').textContent = followersData.length;
+            document.getElementById('followingCount').textContent = followingData.length;
+            document.getElementById('unfollowersCount').textContent = unfollowers.length;
+
+            // Tab counts are no longer needed since we removed the tab buttons
+
+            const tableBody = document.getElementById('unfollowersTable');
+            const noUnfollowers = document.getElementById('noUnfollowers');
+
+            if (unfollowers.length === 0) {
+                tableBody.innerHTML = '';
+                noUnfollowers.classList.remove('hidden');
+            } else {
+                noUnfollowers.classList.add('hidden');
+                renderTable('unfollowers', unfollowers);
+            }
+
+            // Render all tables
+            renderTable('followers', followersData);
+            renderTable('following', followingData);
+
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderTable(type, data, searchTerm = '') {
+            const tableBody = document.getElementById(type + 'Table');
+            const filteredData = data.filter(username =>
+                username.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            tableBody.innerHTML = filteredData.map((username, index) => `
+                <tr class="hover:bg-gray-50">
+                    <td class="border border-gray-200 px-4 py-3 text-center">${index + 1}</td>
+                    <td class="border border-gray-200 px-4 py-3 font-medium text-center">
+                        <a href="https://instagram.com/${username}" target="_blank" 
+                           class="text-blue-600 hover:text-blue-800 transition-all">
+                            @${username}
+                        </a>
+                    </td>
+                    <td class="border border-gray-200 px-4 py-3 text-center">
+                        <a href="https://instagram.com/${username}" target="_blank" 
+                           class="bg-green-600 text-white px-3 py-1 rounded-full text-sm hover:bg-green-700 transition-all">
+                            Lihat Profil
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function switchTab(tabName) {
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.add('hidden');
+            });
+
+            // Show selected tab pane
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+
+            // Tab buttons are no longer needed since we removed them
+
+            currentTab = tabName;
+        }
+
+        function downloadResults() {
+            let data, filename;
+
+            switch (currentTab) {
+                case 'unfollowers':
+                    data = unfollowersData;
+                    filename = 'instagram_berhenti_mengikuti.csv';
+                    break;
+                case 'followers':
+                    data = followersData;
+                    filename = 'instagram_pengikut.csv';
+                    break;
+                case 'following':
+                    data = followingData;
+                    filename = 'instagram_mengikuti.csv';
+                    break;
+                default:
+                    return;
+            }
+
+            if (data.length === 0) return;
+
+            const csvContent = [
+                'No,Nama Pengguna,URL Instagram',
+                ...data.map((username, index) =>
+                    `${index + 1},@${username},https://instagram.com/${username}`
+                )
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        setupFileUpload('followersDropZone', 'followersFile', 'followersStatus', followersData);
+        setupFileUpload('followingDropZone', 'followingFile', 'followingStatus', followingData);
+
+        document.getElementById('processBtn').addEventListener('click', processUnfollowers);
+        document.getElementById('downloadBtn').addEventListener('click', downloadResults);
+
+
+
+
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value;
+
+            switch (currentTab) {
+                case 'unfollowers':
+                    renderTable('unfollowers', unfollowersData, searchTerm);
+                    break;
+                case 'followers':
+                    renderTable('followers', followersData, searchTerm);
+                    break;
+                case 'following':
+                    renderTable('following', followingData, searchTerm);
+                    break;
+            }
+        });
+    </script>
+    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'966da00a40f2b5d6',t:'MTc1MzgwMjY4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+</body>
+
+</html>
