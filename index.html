@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Unfollowers Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .upload-card {
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+        
+        .upload-card:hover {
+            background: #f5f5f5;
+            border-color: #d1d5db;
+        }
+        
+        .upload-card.dragover {
+            background: #f0f0f0;
+            border-color: #9ca3af;
+        }
+        
+        .file-uploaded {
+            background: #f9f9f9;
+            border-color: #10b981;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen font-sans">
+    <div class="container mx-auto px-6 py-12 max-w-2xl">
+        <!-- Header -->
+        <header class="text-center mb-16">
+            <h1 class="text-4xl font-light text-gray-900 mb-3">Unfollowers</h1>
+            <p class="text-gray-500 text-lg">Analisis sederhana untuk Instagram Anda</p>
+        </header>
+
+        <!-- Upload Section -->
+        <div class="space-y-4 mb-12">
+            <!-- Followers Upload -->
+            <div class="upload-card rounded-2xl p-8 text-center cursor-pointer border border-gray-100" id="followersCard">
+                <h3 class="text-xl font-medium text-gray-800 mb-2">Followers</h3>
+                <p class="text-gray-400 mb-6">followers_1.json</p>
+                <input type="file" id="followersFile" accept=".json" class="hidden">
+                <button onclick="document.getElementById('followersFile').click()" class="bg-gray-900 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
+                    Pilih File
+                </button>
+                <div id="followersStatus" class="mt-4 text-sm"></div>
+            </div>
+
+            <!-- Following Upload -->
+            <div class="upload-card rounded-2xl p-8 text-center cursor-pointer border border-gray-100" id="followingCard">
+                <h3 class="text-xl font-medium text-gray-800 mb-2">Following</h3>
+                <p class="text-gray-400 mb-6">following.json</p>
+                <input type="file" id="followingFile" accept=".json" class="hidden">
+                <button onclick="document.getElementById('followingFile').click()" class="bg-gray-900 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
+                    Pilih File
+                </button>
+                <div id="followingStatus" class="mt-4 text-sm"></div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-center items-center gap-4 mb-16">
+            <button id="restartBtn" onclick="restartUpload()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors">
+                Restart
+            </button>
+            <button id="compareBtn" disabled class="bg-gray-200 text-gray-400 px-6 py-3 rounded-lg text-sm font-medium cursor-not-allowed transition-all duration-300">
+                Generate
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden fade-in">
+            <div class="space-y-8">
+                <div id="summaryStats" class="grid grid-cols-3 gap-6"></div>
+                <div id="unfollowersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let followersData = null;
+        let followingData = null;
+        let lastNotFollowingBack = [];
+        let lastYouDontFollowBack = [];
+
+        // File upload handlers
+        document.getElementById('followersFile').addEventListener('change', function(e) {
+            handleFileUpload(e.target.files[0], 'followers');
+        });
+
+        document.getElementById('followingFile').addEventListener('change', function(e) {
+            handleFileUpload(e.target.files[0], 'following');
+        });
+
+        // Drag and drop functionality
+        ['followersCard', 'followingCard'].forEach(cardId => {
+            const card = document.getElementById(cardId);
+            const fileType = cardId.replace('Card', '');
+            
+            card.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                card.classList.add('dragover');
+            });
+            
+            card.addEventListener('dragleave', () => {
+                card.classList.remove('dragover');
+            });
+            
+            card.addEventListener('drop', (e) => {
+                e.preventDefault();
+                card.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0], fileType);
+                }
+            });
+        });
+
+        function handleFileUpload(file, type) {
+            if (!file) {
+                alert('Silakan pilih file terlebih dahulu');
+                return;
+            }
+            
+            if (!file.name.toLowerCase().endsWith('.json')) {
+                alert('Silakan upload file JSON yang valid');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (type === 'followers') {
+                        followersData = data;
+                        updateFileStatus('followersStatus', file.name, 'followers');
+                        document.getElementById('followersCard').classList.add('file-uploaded');
+                    } else {
+                        followingData = data;
+                        updateFileStatus('followingStatus', file.name, 'following');
+                        document.getElementById('followingCard').classList.add('file-uploaded');
+                    }
+                    
+                    checkCompareButton();
+                } catch (error) {
+                    alert(`File JSON tidak valid: ${error.message}`);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function updateFileStatus(statusId, fileName, type) {
+            const statusEl = document.getElementById(statusId);
+            statusEl.innerHTML = `
+                <div class="text-green-600 font-medium">✓ ${fileName}</div>
+                <div class="text-xs text-gray-500 mt-1">File berhasil diupload</div>
+            `;
+        }
+
+        function checkCompareButton() {
+            const compareBtn = document.getElementById('compareBtn');
+            if (followersData && followingData) {
+                compareBtn.disabled = false;
+                compareBtn.className = 'bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300 relative overflow-hidden';
+                compareBtn.onclick = compareData;
+            }
+        }
+
+        function compareData() {
+            try {
+                const followers = extractFollowers(followersData);
+                const following = extractFollowing(followingData);
+
+                if (followers.length === 0 || following.length === 0) {
+                    alert('Data JSON tidak sesuai format.');
+                    return;
+                }
+            
+                const notFollowingBack = following.filter(user => !followers.includes(user));
+                const youDontFollowBack = followers.filter(user => !following.includes(user));
+
+                lastNotFollowingBack = notFollowingBack;
+                lastYouDontFollowBack = youDontFollowBack;
+                
+                displayResults(followers, following, notFollowingBack, youDontFollowBack);
+            } catch (error) {
+                alert('Terjadi kesalahan saat membandingkan data.');
+            }
+        }
+
+        function extractFollowers(data) {
+            if (Array.isArray(data)) {
+                return data.map(item => {
+                    if (item.string_list_data && item.string_list_data[0] && item.string_list_data[0].value) {
+                        return item.string_list_data[0].value.trim().toLowerCase();
+                    }
+                    return null;
+                }).filter(username => username !== null);
+            }
+            return [];
+        }
+        
+        function extractFollowing(data) {
+            if (data.relationships_following && Array.isArray(data.relationships_following)) {
+                return data.relationships_following.map(item => {
+                    if (item.title) {
+                        return item.title.trim().toLowerCase();
+                    }
+                    return null;
+                }).filter(username => username !== null);
+            }
+            return [];
+        }
+
+        function displayResults(followers, following, notFollowingBack, youDontFollowBack) {
+            const summaryStats = document.getElementById('summaryStats');
+            const unfollowersList = document.getElementById('unfollowersList');
+            const resultsSection = document.getElementById('resultsSection');
+
+            summaryStats.innerHTML = `
+                <div class="text-center">
+                    <div class="text-3xl font-light text-gray-900">${followers.length}</div>
+                    <div class="text-sm text-gray-500 mt-1">Followers</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-light text-gray-900">${following.length}</div>
+                    <div class="text-sm text-gray-500 mt-1">Following</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-light text-red-500">${notFollowingBack.length}</div>
+                    <div class="text-sm text-gray-500 mt-1">Unfollowers</div>
+                </div>
+            `;
+
+            unfollowersList.innerHTML = `
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-xl font-medium text-gray-900 mb-4">Tidak Follow Balik (${notFollowingBack.length})</h3>
+                        <div class="bg-gray-50 rounded-2xl p-6 max-h-64 overflow-y-auto">
+                            ${notFollowingBack.length === 0 ? 
+                                '<div class="text-center text-gray-500">Semua yang kamu follow juga follow balik!</div>' :
+                                notFollowingBack.map(user => `
+                                    <div class="flex items-center justify-between py-2">
+                                        <span class="text-gray-800">@${user}</span>
+                                        <a href="https://instagram.com/${user}" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700 text-sm transition-colors">
+                                            Lihat →
+                                        </a>
+                                    </div>
+                                `).join('')}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-medium text-gray-900 mb-4">Kamu Tidak Follow Balik (${youDontFollowBack.length})</h3>
+                        <div class="bg-gray-50 rounded-2xl p-6 max-h-64 overflow-y-auto">
+                            ${youDontFollowBack.length === 0 ? 
+                                '<div class="text-center text-gray-500">Kamu sudah follow balik semua followers!</div>' :
+                                youDontFollowBack.map(user => `
+                                    <div class="flex items-center justify-between py-2">
+                                        <span class="text-gray-800">@${user}</span>
+                                        <a href="https://instagram.com/${user}" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700 text-sm transition-colors">
+                                            Lihat →
+                                        </a>
+                                    </div>
+                                `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-4">
+                        <button onclick="downloadReport()" class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Download Report
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            resultsSection.classList.remove('hidden');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadReport() {
+            let reportContent = "==================================================================\n";
+            reportContent += `🔴 Tidak Follow Balik (kamu follow, mereka tidak): ${lastNotFollowingBack.length}\n`;
+            reportContent += "==================================================================\n";
+            lastNotFollowingBack.forEach(user => {
+                reportContent += `- ${user} → https://www.instagram.com/${user}\n`;
+            });
+
+            reportContent += "\n\n==================================================================\n";
+            reportContent += `🟢 Kamu Tidak Follow Balik (mereka follow, kamu tidak): ${lastYouDontFollowBack.length}\n`;
+            reportContent += "==================================================================\n";
+            lastYouDontFollowBack.forEach(user => {
+                reportContent += `- ${user} → https://www.instagram.com/${user}\n`;
+            });
+
+            const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'unfollowers_report.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function restartUpload() {
+            followersData = null;
+            followingData = null;
+            lastNotFollowingBack = [];
+            lastYouDontFollowBack = [];
+
+            document.getElementById('followersFile').value = '';
+            document.getElementById('followingFile').value = '';
+            document.getElementById('followersCard').classList.remove('file-uploaded');
+            document.getElementById('followingCard').classList.remove('file-uploaded');
+            document.getElementById('followersStatus').innerHTML = '';
+            document.getElementById('followingStatus').innerHTML = '';
+
+            const compareBtn = document.getElementById('compareBtn');
+            compareBtn.disabled = true;
+            compareBtn.className = 'bg-gray-200 text-gray-400 px-6 py-3 rounded-lg text-sm font-medium cursor-not-allowed transition-all duration-300';
+            compareBtn.onclick = null;
+
+            document.getElementById('resultsSection').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
