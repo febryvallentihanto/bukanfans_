@@ -10,31 +10,25 @@
         body {
             box-sizing: border-box;
         }
-        
         .upload-card {
             transition: all 0.3s ease;
             background: #fafafa;
         }
-        
         .upload-card:hover {
             background: #f5f5f5;
             border-color: #d1d5db;
         }
-        
         .upload-card.dragover {
             background: #f0f0f0;
             border-color: #9ca3af;
         }
-        
         .file-uploaded {
             background: #f9f9f9;
             border-color: #10b981;
         }
-        
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
-        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -99,165 +93,110 @@
         let lastNotFollowingBack = [];
         let lastYouDontFollowBack = [];
 
-        // File upload handlers
-        document.getElementById('followersFile').addEventListener('change', function(e) {
-            handleFileUpload(e.target.files[0], 'followers');
-        });
+        document.getElementById('followersFile').addEventListener('change', e => handleFileUpload(e.target.files[0], 'followers'));
+        document.getElementById('followingFile').addEventListener('change', e => handleFileUpload(e.target.files[0], 'following'));
 
-        document.getElementById('followingFile').addEventListener('change', function(e) {
-            handleFileUpload(e.target.files[0], 'following');
-        });
-
-        // Drag and drop functionality
         ['followersCard', 'followingCard'].forEach(cardId => {
             const card = document.getElementById(cardId);
             const fileType = cardId.replace('Card', '');
-            
-            card.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                card.classList.add('dragover');
-            });
-            
-            card.addEventListener('dragleave', () => {
-                card.classList.remove('dragover');
-            });
-            
-            card.addEventListener('drop', (e) => {
-                e.preventDefault();
-                card.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    handleFileUpload(files[0], fileType);
-                }
+            card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('dragover'); });
+            card.addEventListener('dragleave', () => card.classList.remove('dragover'));
+            card.addEventListener('drop', e => {
+                e.preventDefault(); card.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files[0], fileType);
             });
         });
 
         function handleFileUpload(file, type) {
-            if (!file) {
-                alert('Silakan pilih file terlebih dahulu');
-                return;
-            }
-            
-            if (!file.name.toLowerCase().endsWith('.json')) {
-                alert('Silakan upload file JSON yang valid');
-                return;
-            }
-
+            if (!file) return alert('Silakan pilih file terlebih dahulu');
+            if (!file.name.toLowerCase().endsWith('.json')) return alert('Silakan upload file JSON yang valid');
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    
                     if (type === 'followers') {
                         followersData = data;
-                        updateFileStatus('followersStatus', file.name, 'followers');
+                        updateFileStatus('followersStatus', file.name);
                         document.getElementById('followersCard').classList.add('file-uploaded');
                     } else {
                         followingData = data;
-                        updateFileStatus('followingStatus', file.name, 'following');
+                        updateFileStatus('followingStatus', file.name);
                         document.getElementById('followingCard').classList.add('file-uploaded');
                     }
-                    
                     checkCompareButton();
-                } catch (error) {
-                    alert(`File JSON tidak valid: ${error.message}`);
-                }
+                } catch (err) { alert('File JSON tidak valid: ' + err.message); }
             };
             reader.readAsText(file);
         }
 
-        function updateFileStatus(statusId, fileName, type) {
-            const statusEl = document.getElementById(statusId);
-            statusEl.innerHTML = `
-                <div class="text-green-600 font-medium">✓ ${fileName}</div>
+        function updateFileStatus(id, name) {
+            document.getElementById(id).innerHTML = `
+                <div class="text-green-600 font-medium">✓ ${name}</div>
                 <div class="text-xs text-gray-500 mt-1">File berhasil diupload</div>
             `;
         }
 
         function checkCompareButton() {
-            const compareBtn = document.getElementById('compareBtn');
+            const btn = document.getElementById('compareBtn');
             if (followersData && followingData) {
-                compareBtn.disabled = false;
-                compareBtn.className = 'bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300 relative overflow-hidden';
-                compareBtn.onclick = compareData;
+                btn.disabled = false;
+                btn.className = 'bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300';
+                btn.onclick = compareData;
             }
+        }
+
+        function extractFollowersWithTimestamp(data) {
+            const map = new Map();
+            if (Array.isArray(data)) {
+                data.forEach(item => {
+                    const d = item.string_list_data?.[0];
+                    const username = d?.value?.trim().toLowerCase();
+                    if (username) map.set(username, d.timestamp || 0);
+                });
+            }
+            return map;
+        }
+
+        function extractFollowingWithTimestamp(data) {
+            const map = new Map();
+            const list = data.relationships_following;
+            if (Array.isArray(list)) {
+                list.forEach(item => {
+                    const d = item.string_list_data?.[0];
+                    const username = (d?.value || item.title)?.trim().toLowerCase();
+                    if (username) map.set(username, d?.timestamp || 0);
+                });
+            }
+            return map;
         }
 
         function compareData() {
             try {
                 const followersMap = extractFollowersWithTimestamp(followersData);
                 const followingMap = extractFollowingWithTimestamp(followingData);
-
                 const followers = Array.from(followersMap.keys());
                 const following = Array.from(followingMap.keys());
+                if (!followers.length || !following.length) return alert('Data JSON tidak sesuai format');
 
-                if (followers.length === 0 || following.length === 0) {
-                    alert('Data JSON tidak sesuai format.');
-                    return;
-                }
-            
-                const notFollowingBack = following
-                    .filter(user => !followers.includes(user))
-                    .map(user => ({
-                        username: user,
-                        timestamp: followingMap.get(user)
-                    }))
-                    .sort((a, b) => b.timestamp - a.timestamp);
+                const notFollowingBack = following.filter(u => !followers.includes(u))
+                    .map(u => ({ username: u, timestamp: followingMap.get(u) }))
+                    .sort((a, b) => b.timestamp - a.timestamp); // urut terbaru
 
-                const youDontFollowBack = followers
-                    .filter(user => !following.includes(user))
-                    .map(user => ({
-                        username: user,
-                        timestamp: followersMap.get(user)
-                    }))
+                const youDontFollowBack = followers.filter(u => !following.includes(u))
+                    .map(u => ({ username: u, timestamp: followersMap.get(u) }))
                     .sort((a, b) => b.timestamp - a.timestamp);
 
                 lastNotFollowingBack = notFollowingBack;
                 lastYouDontFollowBack = youDontFollowBack;
-                
                 displayResults(followers, following, notFollowingBack, youDontFollowBack);
-            } catch (error) {
+            } catch (err) {
                 alert('Terjadi kesalahan saat membandingkan data.');
-                console.error(error);
+                console.error(err);
             }
-        }
-
-        function extractFollowersWithTimestamp(data) {
-            const followersMap = new Map();
-            if (Array.isArray(data)) {
-                data.forEach(item => {
-                    if (item.string_list_data && item.string_list_data[0]) {
-                        const username = item.string_list_data[0].value?.trim().toLowerCase();
-                        const timestamp = item.string_list_data[0].timestamp || 0;
-                        if (username) {
-                            followersMap.set(username, timestamp);
-                        }
-                    }
-                });
-            }
-            return followersMap;
-        }
-        
-        function extractFollowingWithTimestamp(data) {
-            const followingMap = new Map();
-            if (data.relationships_following && Array.isArray(data.relationships_following)) {
-                data.relationships_following.forEach(item => {
-                    const username = item.string_list_data?.[0]?.value?.trim().toLowerCase();
-                    const timestamp = item.string_list_data?.[0]?.timestamp || 0;
-                    if (username) {
-                        followingMap.set(username, timestamp);
-                    }
-                });
-            }
-            return followingMap;
         }
 
         function displayResults(followers, following, notFollowingBack, youDontFollowBack) {
-            const summaryStats = document.getElementById('summaryStats');
-            const unfollowersList = document.getElementById('unfollowersList');
-            const resultsSection = document.getElementById('resultsSection');
-
-            summaryStats.innerHTML = `
+            document.getElementById('summaryStats').innerHTML = `
                 <div class="text-center">
                     <div class="text-3xl font-light text-gray-900">${followers.length}</div>
                     <div class="text-sm text-gray-500 mt-1">Followers</div>
@@ -272,104 +211,81 @@
                 </div>
             `;
 
-            unfollowersList.innerHTML = `
+            document.getElementById('unfollowersList').innerHTML = `
                 <div class="space-y-8">
                     <div>
                         <h3 class="text-xl font-medium text-gray-900 mb-4">Tidak Follow Balik (${notFollowingBack.length})</h3>
                         <div class="bg-gray-50 rounded-2xl p-6 max-h-96 overflow-y-auto">
                             ${notFollowingBack.length === 0 ? 
                                 '<div class="text-center text-gray-500">Semua yang kamu follow juga follow balik!</div>' :
-                                notFollowingBack.map((user, index) => `
+                                notFollowingBack.map((u,i)=>`
                                     <div class="flex items-center justify-between py-2 border-b border-gray-200 last:border-0">
                                         <div class="flex items-center gap-3">
-                                            <span class="text-gray-400 text-sm font-medium w-8">#${index + 1}</span>
-                                            <span class="text-gray-800">@${user.username}</span>
+                                            <span class="text-gray-400 text-sm font-medium w-8">#${i+1}</span>
+                                            <span class="text-gray-800">@${u.username}</span>
                                         </div>
-                                        <a href="https://instagram.com/${user.username}" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700 text-sm transition-colors">
-                                            Lihat →
-                                        </a>
-                                    </div>
-                                `).join('')}
+                                        <a href="https://instagram.com/${u.username}" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700 text-sm">Lihat →</a>
+                                    </div>`).join('')}
                         </div>
                     </div>
-
                     <div>
                         <h3 class="text-xl font-medium text-gray-900 mb-4">Kamu Tidak Follow Balik (${youDontFollowBack.length})</h3>
                         <div class="bg-gray-50 rounded-2xl p-6 max-h-96 overflow-y-auto">
                             ${youDontFollowBack.length === 0 ? 
                                 '<div class="text-center text-gray-500">Kamu sudah follow balik semua followers!</div>' :
-                                youDontFollowBack.map((user, index) => `
+                                youDontFollowBack.map((u,i)=>`
                                     <div class="flex items-center justify-between py-2 border-b border-gray-200 last:border-0">
                                         <div class="flex items-center gap-3">
-                                            <span class="text-gray-400 text-sm font-medium w-8">#${index + 1}</span>
-                                            <span class="text-gray-800">@${user.username}</span>
+                                            <span class="text-gray-400 text-sm font-medium w-8">#${i+1}</span>
+                                            <span class="text-gray-800">@${u.username}</span>
                                         </div>
-                                        <a href="https://instagram.com/${user.username}" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700 text-sm transition-colors">
-                                            Lihat →
-                                        </a>
-                                    </div>
-                                `).join('')}
+                                        <a href="https://instagram.com/${u.username}" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700 text-sm">Lihat →</a>
+                                    </div>`).join('')}
                         </div>
                     </div>
-
                     <div class="text-center pt-4">
                         <button onclick="downloadReport()" class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                             Download Report
                         </button>
                     </div>
-                </div>
-            `;
-
-            resultsSection.classList.remove('hidden');
-            resultsSection.scrollIntoView({ behavior: 'smooth' });
+                </div>`;
+            const results = document.getElementById('resultsSection');
+            results.classList.remove('hidden');
+            results.scrollIntoView({ behavior: 'smooth' });
         }
 
         function downloadReport() {
-            let reportContent = "==================================================================\n";
-            reportContent += `🔴 Tidak Follow Balik (kamu follow, mereka tidak): ${lastNotFollowingBack.length}\n`;
-            reportContent += "==================================================================\n";
-            lastNotFollowingBack.forEach((user, index) => {
-                reportContent += `${index + 1}. ${user.username} → https://www.instagram.com/${user.username}\n`;
-            });
-
-            reportContent += "\n\n==================================================================\n";
-            reportContent += `🟢 Kamu Tidak Follow Balik (mereka follow, kamu tidak): ${lastYouDontFollowBack.length}\n`;
-            reportContent += "==================================================================\n";
-            lastYouDontFollowBack.forEach((user, index) => {
-                reportContent += `${index + 1}. ${user.username} → https://www.instagram.com/${user.username}\n`;
-            });
-
-            const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
+            let txt = "============================================================\n";
+            txt += `🔴 Tidak Follow Balik (kamu follow, mereka tidak): ${lastNotFollowingBack.length}\n`;
+            txt += "============================================================\n";
+            lastNotFollowingBack.forEach((u,i)=>{ txt += `${i+1}. ${u.username} → https://instagram.com/${u.username}\n`; });
+            txt += "\n\n============================================================\n";
+            txt += `🟢 Kamu Tidak Follow Balik (mereka follow, kamu tidak): ${lastYouDontFollowBack.length}\n`;
+            txt += "============================================================\n";
+            lastYouDontFollowBack.forEach((u,i)=>{ txt += `${i+1}. ${u.username} → https://instagram.com/${u.username}\n`; });
+            const blob = new Blob([txt], {type:'text/plain'});
             const a = document.createElement('a');
-            a.href = url;
+            a.href = URL.createObjectURL(blob);
             a.download = 'unfollowers_report.txt';
-            document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(a.href);
         }
 
         function restartUpload() {
-            followersData = null;
-            followingData = null;
-            lastNotFollowingBack = [];
-            lastYouDontFollowBack = [];
-
+            followersData = followingData = null;
+            lastNotFollowingBack = lastYouDontFollowBack = [];
             document.getElementById('followersFile').value = '';
             document.getElementById('followingFile').value = '';
-            document.getElementById('followersCard').classList.remove('file-uploaded');
-            document.getElementById('followingCard').classList.remove('file-uploaded');
+            ['followersCard','followingCard'].forEach(id=>{
+                document.getElementById(id).classList.remove('file-uploaded');
+            });
             document.getElementById('followersStatus').innerHTML = '';
             document.getElementById('followingStatus').innerHTML = '';
-
-            const compareBtn = document.getElementById('compareBtn');
-            compareBtn.disabled = true;
-            compareBtn.className = 'bg-gray-200 text-gray-400 px-6 py-3 rounded-lg text-sm font-medium cursor-not-allowed transition-all duration-300';
-            compareBtn.onclick = null;
-
+            const btn = document.getElementById('compareBtn');
+            btn.disabled = true;
+            btn.className = 'bg-gray-200 text-gray-400 px-6 py-3 rounded-lg text-sm font-medium cursor-not-allowed transition-all duration-300';
             document.getElementById('resultsSection').classList.add('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({top:0,behavior:'smooth'});
         }
     </script>
 </body>
