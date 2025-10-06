@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BUKAN FANS</title>
-       <link rel="icon" type="image/png" href="image/logo.png">
+    <link rel="icon" type="image/png" href="image/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -185,16 +185,32 @@
 
         function compareData() {
             try {
-                const followers = extractFollowers(followersData);
-                const following = extractFollowing(followingData);
+                const followersMap = extractFollowersWithTimestamp(followersData);
+                const followingMap = extractFollowingWithTimestamp(followingData);
+
+                const followers = Array.from(followersMap.keys());
+                const following = Array.from(followingMap.keys());
 
                 if (followers.length === 0 || following.length === 0) {
                     alert('Data JSON tidak sesuai format.');
                     return;
                 }
             
-                const notFollowingBack = following.filter(user => !followers.includes(user));
-                const youDontFollowBack = followers.filter(user => !following.includes(user));
+                const notFollowingBack = following
+                    .filter(user => !followers.includes(user))
+                    .map(user => ({
+                        username: user,
+                        timestamp: followingMap.get(user)
+                    }))
+                    .sort((a, b) => b.timestamp - a.timestamp);
+
+                const youDontFollowBack = followers
+                    .filter(user => !following.includes(user))
+                    .map(user => ({
+                        username: user,
+                        timestamp: followersMap.get(user)
+                    }))
+                    .sort((a, b) => b.timestamp - a.timestamp);
 
                 lastNotFollowingBack = notFollowingBack;
                 lastYouDontFollowBack = youDontFollowBack;
@@ -202,31 +218,38 @@
                 displayResults(followers, following, notFollowingBack, youDontFollowBack);
             } catch (error) {
                 alert('Terjadi kesalahan saat membandingkan data.');
+                console.error(error);
             }
         }
 
-        function extractFollowers(data) {
+        function extractFollowersWithTimestamp(data) {
+            const followersMap = new Map();
             if (Array.isArray(data)) {
-                return data.map(item => {
-                    if (item.string_list_data && item.string_list_data[0] && item.string_list_data[0].value) {
-                        return item.string_list_data[0].value.trim().toLowerCase();
+                data.forEach(item => {
+                    if (item.string_list_data && item.string_list_data[0]) {
+                        const username = item.string_list_data[0].value?.trim().toLowerCase();
+                        const timestamp = item.string_list_data[0].timestamp || 0;
+                        if (username) {
+                            followersMap.set(username, timestamp);
+                        }
                     }
-                    return null;
-                }).filter(username => username !== null);
+                });
             }
-            return [];
+            return followersMap;
         }
         
-        function extractFollowing(data) {
+        function extractFollowingWithTimestamp(data) {
+            const followingMap = new Map();
             if (data.relationships_following && Array.isArray(data.relationships_following)) {
-                return data.relationships_following.map(item => {
-                    if (item.title) {
-                        return item.title.trim().toLowerCase();
+                data.relationships_following.forEach(item => {
+                    const username = item.string_list_data?.[0]?.value?.trim().toLowerCase();
+                    const timestamp = item.string_list_data?.[0]?.timestamp || 0;
+                    if (username) {
+                        followingMap.set(username, timestamp);
                     }
-                    return null;
-                }).filter(username => username !== null);
+                });
             }
-            return [];
+            return followingMap;
         }
 
         function displayResults(followers, following, notFollowingBack, youDontFollowBack) {
@@ -253,13 +276,16 @@
                 <div class="space-y-8">
                     <div>
                         <h3 class="text-xl font-medium text-gray-900 mb-4">Tidak Follow Balik (${notFollowingBack.length})</h3>
-                        <div class="bg-gray-50 rounded-2xl p-6 max-h-64 overflow-y-auto">
+                        <div class="bg-gray-50 rounded-2xl p-6 max-h-96 overflow-y-auto">
                             ${notFollowingBack.length === 0 ? 
                                 '<div class="text-center text-gray-500">Semua yang kamu follow juga follow balik!</div>' :
-                                notFollowingBack.map(user => `
-                                    <div class="flex items-center justify-between py-2">
-                                        <span class="text-gray-800">@${user}</span>
-                                        <a href="https://instagram.com/${user}" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700 text-sm transition-colors">
+                                notFollowingBack.map((user, index) => `
+                                    <div class="flex items-center justify-between py-2 border-b border-gray-200 last:border-0">
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-gray-400 text-sm font-medium w-8">#${index + 1}</span>
+                                            <span class="text-gray-800">@${user.username}</span>
+                                        </div>
+                                        <a href="https://instagram.com/${user.username}" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700 text-sm transition-colors">
                                             Lihat →
                                         </a>
                                     </div>
@@ -269,13 +295,16 @@
 
                     <div>
                         <h3 class="text-xl font-medium text-gray-900 mb-4">Kamu Tidak Follow Balik (${youDontFollowBack.length})</h3>
-                        <div class="bg-gray-50 rounded-2xl p-6 max-h-64 overflow-y-auto">
+                        <div class="bg-gray-50 rounded-2xl p-6 max-h-96 overflow-y-auto">
                             ${youDontFollowBack.length === 0 ? 
                                 '<div class="text-center text-gray-500">Kamu sudah follow balik semua followers!</div>' :
-                                youDontFollowBack.map(user => `
-                                    <div class="flex items-center justify-between py-2">
-                                        <span class="text-gray-800">@${user}</span>
-                                        <a href="https://instagram.com/${user}" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700 text-sm transition-colors">
+                                youDontFollowBack.map((user, index) => `
+                                    <div class="flex items-center justify-between py-2 border-b border-gray-200 last:border-0">
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-gray-400 text-sm font-medium w-8">#${index + 1}</span>
+                                            <span class="text-gray-800">@${user.username}</span>
+                                        </div>
+                                        <a href="https://instagram.com/${user.username}" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-gray-700 text-sm transition-colors">
                                             Lihat →
                                         </a>
                                     </div>
@@ -299,15 +328,15 @@
             let reportContent = "==================================================================\n";
             reportContent += `🔴 Tidak Follow Balik (kamu follow, mereka tidak): ${lastNotFollowingBack.length}\n`;
             reportContent += "==================================================================\n";
-            lastNotFollowingBack.forEach(user => {
-                reportContent += `- ${user} → https://www.instagram.com/${user}\n`;
+            lastNotFollowingBack.forEach((user, index) => {
+                reportContent += `${index + 1}. ${user.username} → https://www.instagram.com/${user.username}\n`;
             });
 
             reportContent += "\n\n==================================================================\n";
             reportContent += `🟢 Kamu Tidak Follow Balik (mereka follow, kamu tidak): ${lastYouDontFollowBack.length}\n`;
             reportContent += "==================================================================\n";
-            lastYouDontFollowBack.forEach(user => {
-                reportContent += `- ${user} → https://www.instagram.com/${user}\n`;
+            lastYouDontFollowBack.forEach((user, index) => {
+                reportContent += `${index + 1}. ${user.username} → https://www.instagram.com/${user.username}\n`;
             });
 
             const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
@@ -345,4 +374,3 @@
     </script>
 </body>
 </html>
-
