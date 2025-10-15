@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" type="image/png" href="image/coding.png">
+    <title>Bukan Fans - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f6f7fb;
+            color: #1f2937;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .user-link {
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .small-ts {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .pill {
+            border-radius: 999px;
+            padding: 0.35rem 0.7rem;
+            font-weight: 600;
+        }
+
+        @media (max-width:576px) {
+            .hide-xs {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container py-4">
+        <div class="d-flex align-items-center mb-3">
+            <div>
+                <h3 class="mb-0">BUKAN FANS</h3>
+                <div class="muted">Upload file JSON / HTML dari export Instagram kamu.</div>
+            </div>
+            <div class="ms-auto text-end hide-xs">
+                <small class="muted">Modern • Simple • Responsive</small>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <label class="form-label mb-1 fw-bold">Upload Followers</label>
+                    <input id="fileFollowers" type="file" accept=".json,.html,.htm,text/*" class="form-control mb-2" />
+                    <div class="muted small">Contoh file: <code>followers_1.json</code></div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <label class="form-label mb-1 fw-bold">Upload Following</label>
+                    <input id="fileFollowing" type="file" accept=".json,.html,.htm,text/*" class="form-control mb-2" />
+                    <div class="muted small">Contoh file: <code>following.json</code>.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-3">
+                <div class="card p-4 text-center">
+                    <div class="fw-bold">Pengikut</div>
+                    <div id="countFollowers" class="h3 my-1">—</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-4 text-center">
+                    <div class="fw-bold">Mengikuti</div>
+                    <div id="countFollowing" class="h3 my-1">—</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-4 text-center">
+                    <div class="fw-bold">Tidak Mengikuti</div>
+                    <div id="countUnfollowers" class="h3 my-1">—</div>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-center">
+                <div class="w-100">
+                    <input id="globalSearch" class="form-control mb-2" placeholder="Cari username akun..." />
+                    <div class="d-flex gap-2">
+                        <button id="btnCopy" class="btn btn-secondary w-50">Salin</button>
+                        <button id="btnCSV" class="btn btn-primary w-50">Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="card p-3">
+                    <h5 class="mb-2">Daftar Pengikut</h5>
+                    <div id="followersList" class="list-group" style="max-height:60vh; overflow:auto"></div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card p-3">
+                    <h5 class="mb-2">Daftar Tidak Mengikuti</h5>
+                    <div id="unfollowersList" class="list-group" style="max-height:60vh; overflow:auto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const el = id => document.getElementById(id);
+        const fInput = el('fileFollowers');
+        const gInput = el('fileFollowing');
+        let followers = [];
+        let following = [];
+        fInput.addEventListener('change', e => handleFile(e.target.files[0], 'followers'));
+        gInput.addEventListener('change', e => handleFile(e.target.files[0], 'following'));
+        el('globalSearch').addEventListener('input', () => renderLists());
+        el('btnCopy').addEventListener('click', copyUnfollowers);
+        el('btnCSV').addEventListener('click', exportCSV);
+        async function handleFile(file, type) {
+            if (!file) return;
+            const text = await file.text();
+            const parsed = tryParseJSON(text) || tryParseHTML(text);
+            if (!parsed) {
+                alert('Format file tidak dikenali. Harap upload JSON atau HTML dari export Instagram.');
+                return;
+            }
+            const normalized = normalize(parsed, type);
+            if (type === 'followers') followers = normalized;
+            else following = normalized;
+            updateCounts();
+            renderLists();
+        }
+
+        function tryParseJSON(txt) {
+            try {
+                const obj = JSON.parse(txt);
+                return obj;
+            } catch { return null; }
+        }
+
+        function tryParseHTML(txt) {
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(txt, 'text/html');
+                const anchors = Array.from(doc.querySelectorAll('a[href*="instagram.com"]'));
+                if (!anchors.length) return null;
+                const out = anchors.map(a => {
+                    const href = a.getAttribute('href');
+                    // extract username from path
+                    let username = extractUsernameFromHref(href) || (a.textContent || '').trim();
+                    username = username && username.replace(/^_u\//, '').replace(/^\/|\/$/g, '');
+                    return { username, href, timestamp: 0 };
+                });
+                return out;
+            } catch (e) { return null; }
+        }
+
+        function normalize(data, expected) {
+            const out = [];
+
+            if (Array.isArray(data)) {
+                data.forEach(item => {
+                    if (item && Array.isArray(item.string_list_data) && item.string_list_data.length) {
+                        item.string_list_data.forEach(s => {
+                            const href = s.href || '';
+                            const username = s.value || extractUsernameFromHref(href) || item.title || '';
+                            const ts = s.timestamp || s.time || 0;
+                            if (username) out.push({ username: normalizeUsername(username), href, timestamp: Number(ts) || 0 });
+                        });
+                    } else if (item && item.title) {
+                        out.push({ username: normalizeUsername(item.title), href: '', timestamp: 0 });
+                    }
+                });
+                return out;
+            }
+
+            if (data && data.relationships_following && Array.isArray(data.relationships_following)) {
+                data.relationships_following.forEach(item => {
+                    const title = item.title || (item.string_list_data && item.string_list_data[0] && item.string_list_data[0].value) || '';
+                    const ts = item.string_list_data && item.string_list_data[0] && item.string_list_data[0].timestamp;
+                    const href = item.string_list_data && item.string_list_data[0] && item.string_list_data[0].href;
+                    if (title) out.push({ username: normalizeUsername(title), href: href || '', timestamp: Number(ts) || 0 });
+                });
+                return out;
+            }
+
+            if (typeof data === 'object') {
+                const candidates = findAllInObject(data, ['href', 'value', 'timestamp']);
+                if (candidates.length) {
+                    candidates.forEach(c => {
+                        const username = c.value || extractUsernameFromHref(c.href || '') || '';
+                        out.push({ username: normalizeUsername(username), href: c.href || '', timestamp: Number(c.timestamp) || 0 });
+                    });
+                    return out;
+                }
+            }
+
+            if (Array.isArray(data) && typeof data[0] === 'string') {
+                data.forEach(s => {
+                    const username = normalizeUsername(s);
+                    out.push({ username, href: `https://instagram.com/${username}`, timestamp: 0 });
+                });
+                return out;
+            }
+
+            return out;
+        }
+
+        function findAllInObject(obj, keys) {
+            const results = [];
+            function walk(o) {
+                if (!o || typeof o !== 'object') return;
+                const hasAll = keys.every(k => k in o);
+                if (hasAll) results.push(o);
+                for (const k in o) {
+                    if (typeof o[k] === 'object') walk(o[k]);
+                }
+            }
+            walk(obj);
+            return results;
+        }
+
+        function extractUsernameFromHref(h) {
+            if (!h) return null;
+            try {
+                const clean = h.split('?')[0].replace(/\/+$/, '');
+                const m = clean.match(/instagram\.com\/(?:_u\/)?([^\/?#]+)/i);
+                return m ? decodeURIComponent(m[1]) : null;
+            } catch { return null; }
+        }
+
+        function normalizeUsername(u) {
+            if (!u) return '';
+            return String(u).replace(/^https?:\/\/(www\.)?instagram\.com\/?/i, '')
+                .replace(/^_u\//, '').replace(/^\/|\/$/g, '').trim();
+        }
+
+        function updateCounts() {
+            el('countFollowers').textContent = followers.length || '0';
+            el('countFollowing').textContent = following.length || '0';
+            const unf = computeUnfollowers();
+            el('countUnfollowers').textContent = unf.length || '0';
+        }
+
+        function computeUnfollowers() {
+            const fset = new Set(followers.map(x => x.username.toLowerCase()));
+            const result = following.filter(x => !fset.has(x.username.toLowerCase()));
+            return result.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        }
+
+        function renderLists() {
+            const q = (el('globalSearch').value || '').toLowerCase().trim();
+            const fSorted = followers.slice().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            const unf = computeUnfollowers();
+            const flist = el('followersList');
+            const ulist = el('unfollowersList');
+            flist.innerHTML = '';
+            ulist.innerHTML = '';
+            (q ? fSorted.filter(it => it.username.toLowerCase().includes(q)) : fSorted)
+                .forEach(it => flist.appendChild(renderItem(it)));
+            (q ? unf.filter(it => it.username.toLowerCase().includes(q)) : unf)
+                .forEach(it => ulist.appendChild(renderItem(it, true)));
+        }
+
+        function renderItem(item, showFollowBackBadge = false) {
+            const a = document.createElement('a');
+            a.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-start';
+            a.href = item.href || `https://instagram.com/${item.username}`;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            const left = document.createElement('div');
+            left.className = 'ms-1 me-auto';
+            const name = document.createElement('div');
+            name.className = 'user-link';
+            name.textContent = item.username;
+            const ts = document.createElement('div');
+            ts.className = 'small-ts';
+            ts.textContent = item.timestamp ? formatTS(item.timestamp) : 'timestamp: -';
+            left.appendChild(name);
+            left.appendChild(ts);
+
+            const right = document.createElement('div');
+            right.className = 'text-end';
+            if (showFollowBackBadge) {
+                const pill = document.createElement('span');
+                pill.className = 'pill bg-light text-danger';
+                pill.textContent = 'profile';
+                right.appendChild(pill);
+            } else {
+                const pill = document.createElement('span');
+                pill.className = 'pill bg-light text-success';
+                pill.textContent = 'profile';
+                right.appendChild(pill);
+            }
+
+            a.appendChild(left);
+            a.appendChild(right);
+            return a;
+        }
+
+        function formatTS(ts) {
+            const n = Number(ts) || 0;
+            if (!n) return '-';
+            const d = new Date(n * 1000);
+            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+        function copyUnfollowers() {
+            const unf = computeUnfollowers();
+            const txt = unf.map(u => u.username).join('\n');
+            if (!txt) { alert('Tidak ada unfollowers untuk dicopy.'); return; }
+            navigator.clipboard.writeText(txt).then(() => {
+                alert('Daftar unfollowers dicopy ke clipboard ✅');
+            }, () => alert('Gagal menyalin ke clipboard.'));
+        }
+
+        function exportCSV() {
+            const unf = computeUnfollowers();
+            const fSorted = followers.slice().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            const lines = ['type,username,href,timestamp,readable'];
+            fSorted.forEach(i => lines.push(['follower', i.username, i.href || '', i.timestamp || '', formatTS(i.timestamp)].map(csvEscape).join(',')));
+            unf.forEach(i => lines.push(['unfollower', i.username, i.href || '', i.timestamp || '', formatTS(i.timestamp)].map(csvEscape).join(',')));
+            const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ig_followers_unfollowers.txt';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+        function csvEscape(s) { if (s == null) s = ''; return '"' + String(s).replace(/"/g, '""') + '"'; }
+    </script>
+</body>
+
+</html>
